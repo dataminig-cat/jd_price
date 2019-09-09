@@ -1,5 +1,4 @@
-import tkinter as tk
-from tkinter import ttk
+from views.df_manager import *
 from tkinter.scrolledtext import ScrolledText
 from tkinter.filedialog import askdirectory, askopenfilename
 
@@ -7,6 +6,7 @@ from tkinter.filedialog import askdirectory, askopenfilename
 class basefFrame:
     def __init__(self, root):
         '''初始化'''
+        self.dfm = DfManager()
         self.root = root
         self.fFrame = tk.Frame(root, width=960, height=600, bg='#DCDCDC')
         self.fFrame.place(x=0, y=0)
@@ -73,8 +73,8 @@ class basefFrame:
                    "date":("记录时间",75),
                    'name': ('商品名称', 100),
                    'status':('状态',50)}
-        self.i_log = self.getDf(self.log_frame,columns,22,0,0,True)
-        self.setBar(self.log_frame,self.i_log,(255,0,470),(0,465,250))
+        self.i_log = self.dfm.getDf(self.log_frame,'logger',columns,22,0,0,True)
+        self.dfm.setBar(self.log_frame,self.i_log,(255,0,470),(0,465,250))
 
         self.alert_frame = tk.Frame(self.fFrame)
         self.alert_frame.place(x=x_border,y=100,height=485,width=270)
@@ -82,8 +82,8 @@ class basefFrame:
                    "date":("记录时间",75),
                    'name': ('商品名称', 75),
                    'delta_price':('价格变动',75)}
-        self.i_alert = self.getDf(self.alert_frame,columns,22,0,0,True)
-        self.setBar(self.alert_frame,self.i_alert,(255,0,470),(0,465,250))
+        self.i_alert = self.dfm.getDf(self.alert_frame,'alert',columns,22,0,0,True)
+        self.dfm.setBar(self.alert_frame,self.i_alert,(255,0,470),(0,465,250))
         label = ttk.Label(self.fFrame, text='采集日志', style="BW.TLabel")
 
         label.bind('<Button-1>',lambda x: self.log_frame.tkraise())
@@ -97,53 +97,14 @@ class basefFrame:
                    "date":("记录时间",width),
                    'price':('价格',width),
                    'delta_price':('价格变动',width)}
-        self.i_price = self.getDf(self.fFrame,columns,15,10,100)
-        self.setBar(self.fFrame,self.i_price,(613,100,325),(10,430,620))
+        self.i_price = self.dfm.getDf(self.fFrame,'price',columns,15,10,100)
+        self.dfm.setBar(self.fFrame,self.i_price,(613,100,325),(10,430,620))
 
         for i in range(25):
             self.i_price.insert("","end",text = "top",values=(i,"2019-01-01",'150','-10'))
-        for i in range(25):
-            self.i_log.insert("","end",text = "top",values=(i,"2019-01-01",'笔记本','成功'))
-        for i in range(25):
-            self.i_alert.insert("","end",text = "top",values=(i,"2019-01-01",'150','-10'))
 
     def runLogger(self):
         pass
-
-    def getDf(self,root,columns,height,x,y,headings=False):
-        '''
-        :param columns: {"col":('name',width)}
-        :param height:  raw_nums
-        :param headings: whether show the first col
-        :return:
-        '''
-        dataframe = ttk.Treeview(root, columns=tuple(columns.keys()),
-                                 height=height)
-        if headings:
-            dataframe['show'] = 'headings'
-        for col,(name,width) in columns.items():
-            dataframe.column(col, width=width, anchor='center')  # 表示列,不显示
-            dataframe.heading(col, text=name)  # 显示表头
-        dataframe.place(x=x,y=y)
-        return dataframe
-    def setBar(self,root,widget,vplace,hplace):
-        '''
-        :param root:
-        :param widget:
-        :param vplace: (x,y,length)
-        :param hplace:
-        :return:
-        '''
-        # 垂直滚动条
-        vbar =  tk.Scrollbar(root,orient=tk.VERTICAL,command=widget.yview)
-        widget.configure(yscrollcommand = vbar.set)
-        x,y,height = vplace
-        vbar.place(x=x,y=y,height=height)
-        # 水平滚动条
-        hbar =  tk.Scrollbar(root,orient=tk.HORIZONTAL,command=widget.xview)
-        widget.configure(xscrollcommand = hbar.set)
-        x, y, height = hplace
-        hbar.place(x=x,y=y,width=height)
 
 
 class Main(tk.Tk):
@@ -158,4 +119,5 @@ class Main(tk.Tk):
 
     def initFFrame(self):
         frame = basefFrame(self)
+        self.dfm = frame.dfm
 
