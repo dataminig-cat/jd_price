@@ -5,6 +5,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="crawler.downloader.*" />
+          <option value="lxml.etree" />
         </list>
       </option>
     </inspection_tool>

@@ -133,6 +133,9 @@ class basefFrame:
         for i in range(25):
             self.i_price.insert("","end",text = "top",values=(i,"2019-01-01",'150','-10'))
 
+    def runLogger(self):
+        pass
+
 
 class Main(tk.Tk):
     def __init__(self,user ='root',passw='123456'):
@@ -142,9 +145,7 @@ class Main(tk.Tk):
         # self.protocol("WM_DELETE_WINDOW", crawlerutils.p)  # 关闭时触发时触发函数
         self.title("价格监测")
         self.initFFrame()
-        self.mainloop()
 
     def initFFrame(self):
         frame = basefFrame(self)
-
-Main()
+        self.dfm = frame.dfm
