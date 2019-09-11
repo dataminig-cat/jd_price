@@ -7,16 +7,30 @@ class Curls:
 
     def insert_urls(self,url, status):
         insert_time = datetime.datetime.now()
-        try:
+        inst = self.session .query(storeUrls).filter(storeUrls.url == url).first()
+        if inst is None:
             p = storeUrls(url = url, origin_time = insert_time, setting = status)
             self.session .add(p)
             self.session .commit()
-        except:
-            url_update = self.session .query(storeUrls).filter(url == url).first()
-            url_update.origin_time = insert_time
+        else:
+            inst.origin_time = insert_time
             self.session .commit()
 
 
 class Cprice:
     def __init__(self):
-        pass
+        self.session = Session()    #session的生命周期跟实例一样
+
+    def insert(self,key='url = ..',**kwargs):
+        var,val = key.split('=')    #变量名，取值
+        inst = self.session.query(Price).filter(Price.href == val).first()
+        if inst is None:
+            inst = Price(**kwargs)
+            self.session.add(inst)
+        else:
+            self.update(inst,**kwargs)
+        self.session.commit()
+
+    def update(self,inst,**kwargs):
+        inst.update_time = kwargs['update_time']    #
+        inst.price = kwargs['price']
