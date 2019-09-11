@@ -1,6 +1,8 @@
 from views.df_manager import *
+import tkinter.messagebox
 from tkinter.scrolledtext import ScrolledText
 from tkinter.filedialog import askdirectory, askopenfilename
+from db_tools import Curls
 
 #功能基类
 class basefFrame:
@@ -22,9 +24,12 @@ class basefFrame:
 
     def bulk_load(self):  #批量下载
         def get_detail():
+            iurls = Curls()
             urls = self.text.get(1.0,tk.END)
             urls = urls.split('\n')[:-1]
-            print(urls)
+            for i in range(len(urls)):
+               iurls.insert_urls(urls, 1)
+            tk.messagebox.showinfo('提示', '导入成功')
             bulk_win.destroy()
         def cancel_win():
             bulk_win.destroy()
@@ -48,6 +53,10 @@ class basefFrame:
             path.set(path_)
             print(path_)  # 传目录
 
+        def insert_url():
+            url = v.get()
+            db_tools.insert_urls(url, 1)
+            tk.messagebox.showinfo('提示', '导入成功')
         path = tk.StringVar()
         # 创建一个名为File的菜单项
         menuBar = tk.Menu(self.root)
@@ -81,8 +90,9 @@ class basefFrame:
 
         #爬虫需要的url输入框
         ttk.Label(self.fFrame, text='导入链接：', style="BW.TLabel").place(x=10, y=12)
-        tk.Entry(self.fFrame, borderwidth=3, width=40, selectbackground='gray').place(x=70, y=10)  # 输入框的位置设定
-        ttk.Button(self.fFrame, text='导入', command="", width=9).place(x=370, y=10)
+        v = tk.StringVar()
+        tk.Entry(self.fFrame, borderwidth=3, width=40, textvariable=v,  selectbackground='gray').place(x=70, y=10)  # 输入框的位置设定
+        ttk.Button(self.fFrame, text='导入', command=insert_url, width=9).place(x=370, y=10)
         ttk.Button(self.fFrame, text='批量导入', command=self.bulk_load, width=9).place(x=450, y=10)
 
         ttk.Label(self.fFrame, text='总页数：', style="BW.TLabel").place(x=10, y=500)
