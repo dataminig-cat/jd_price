@@ -15,8 +15,8 @@ class Curls:
         else:
             inst.origin_time = insert_time
             self.session .commit()
-
-
+    def query(self,**kwargs):
+        return self.session.query(storeUrls).filter_by(**kwargs).all()
 class Cprice:
     def __init__(self):
         self.session = Session()    #session的生命周期跟实例一样
@@ -24,13 +24,18 @@ class Cprice:
     def insert(self,key='url = ..',**kwargs):
         var,val = key.split('=')    #变量名，取值
         inst = self.session.query(Price).filter(Price.href == val).first()
+        delta = 0 # 附带比较功能
         if inst is None:
+            kwargs[var] = val
             inst = Price(**kwargs)
             self.session.add(inst)
         else:
-            self.update(inst,**kwargs)
+            delta = self.update(inst,**kwargs)
         self.session.commit()
+        return delta
 
     def update(self,inst,**kwargs):
-        inst.update_time = kwargs['update_time']    #
+        delta = kwargs['price'] - inst.price
+        inst.update_time = kwargs['origin_time']    #
         inst.price = kwargs['price']
+        return delta

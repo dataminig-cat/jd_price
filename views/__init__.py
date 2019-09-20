@@ -1,6 +1,5 @@
 from views.df_manager import *
 import tkinter.messagebox
-from tkinter.scrolledtext import ScrolledText
 from tkinter.filedialog import askdirectory, askopenfilename
 from db_tools import Curls
 import matplotlib
@@ -8,26 +7,24 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,NavigationToolbar2Tk
 from matplotlib.figure import Figure
 import numpy as np
-
+from threading import Thread
 
 
 class basefFrame:
     def __init__(self, root):
         '''初始化'''
         self.dfm = DfManager()
-        self.root = root
+        self.root,self.crawler = root,None
         self.fFrame = tk.Frame(root, width=960, height=600, bg='#DCDCDC')
         self.fFrame.place(x=0, y=0)
         self.fFrame.bind("<Double-1>",self.callback)   #调试用：输出鼠标位置
         self.xx,self.yy = 0,0
         self.fFrame = self.initFrame()
 
-
+    # *****功能区*****
     def callback(self,event):
         print("当前位置：", event.x, event.y,'\t间隔：',event.x-self.xx,event.y-self.yy)
         self.xx,self.yy = event.x,event.y
-
-
     def bulk_load(self):  #批量下载
         def get_detail():
             iurls = Curls()
@@ -37,7 +34,7 @@ class basefFrame:
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
                 for i in range(len(urls)):
-                    iurls.insert_urls(urls, 1)
+                    iurls.insert_urls(urls[i], 1)
                 tk.messagebox.showinfo('提示', '导入成功')
             bulk_win.destroy()
 
@@ -54,7 +51,12 @@ class basefFrame:
         ttk.Button(bulk_win, text='取消', command=cancel_win, width=9).place(x=350, y=370)
 
         # d = MyDialog(self.root, title='批量输入')
+    def crawl(self):
+        if self.crawler is not  None:
+            thread = Thread(target=self.crawler.run)
+            thread.start()
 
+    # *****功能区*****
     def setting_(self):
         setting_win = tk.Tk()
         setting_win.geometry('600x450+400+150')
@@ -160,7 +162,7 @@ class basefFrame:
         # 绘制这些随机点的散点图，颜色随机选取
         self.a.scatter(x, y, s=3, color=color[np.random.randint(len(color))])
         self.a.set_title('Demo: Draw N Random Dot')
-        self.canvas.show()
+        # self.canvas.show()
         self.canvas.get_tk_widget().place(x=10, y=40)
         # self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         ttk.Button(self.paint_frame, text='画图', command=self.drawPic).place(x=250, y=10)
@@ -213,6 +215,7 @@ class basefFrame:
         tk.Entry(self.fFrame, borderwidth=3, width=40, textvariable=v,  selectbackground='gray').place(x=70, y=10)  # 输入框的位置设定
         ttk.Button(self.fFrame, text='导入', command=insert_url, width=9).place(x=370, y=10)
         ttk.Button(self.fFrame, text='批量导入', command=self.bulk_load, width=9).place(x=450, y=10)
+        ttk.Button(self.fFrame, text='开始爬取', command=self.crawl, width=9).place(x=530, y=10)
 
         ttk.Label(self.fFrame, text='总页数：', style="BW.TLabel").place(x=10, y=500)
         ttk.Label(self.fFrame, text='采集设置：', style="BW.TLabel").place(x=10, y=530)
@@ -267,8 +270,8 @@ class basefFrame:
 
 
 
-class Main(tk.Tk):
-    def __init__(self,user ='root',passw='123456'):
+class Itf(tk.Tk):
+    def __init__(self):
         super().__init__()
         self.geometry('960x600+200+100')  # 设置窗口大小和相对屏幕位置
         # self.resizable(0, 0)  # 阻止Python GUI的大小调整
@@ -277,5 +280,11 @@ class Main(tk.Tk):
         self.initFFrame()
 
     def initFFrame(self):
-        frame = basefFrame(self)
-        self.dfm = frame.dfm
+        self.frame = basefFrame(self)
+        self.dfm = self.frame.dfm
+    def set_crawler(self,crawler):
+        self.frame.crawler = crawler
+
+if __name__ == '__main__':
+    itf = Itf()
+    itf.mainloop()

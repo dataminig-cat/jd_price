@@ -1,6 +1,9 @@
 import logging
 import time
 
+from smtplib import SMTP    # manages a connection to an SMTP or ESMTP server.
+
+
 # 自定义数据库连接日志
 class MysqlHandler(logging.Handler):
     def __init__(self,itf):
@@ -17,6 +20,7 @@ class MysqlHandler(logging.Handler):
             num = self.nums.get(id,0) + 1 #序号
             self.nums[id] = num
             # 分解
+            # print(id,num,msg)
             self.itf.insert(id,tuple([num,date]+msg))
             # stream = self.stream
             # stream.write(msg)
@@ -39,16 +43,16 @@ def getMyLogger(itf):
     # fmt = logging.Formatter('%s')   #可查看大部分字段
     # fmt = logging.Formatter('%(asctime)s -- %(message)s')
     # handler.setFormatter(fmt)
-    # 给logger添加handler
+
+
+    # # 给logger添加handler
     logger.addHandler(handler)
-    logger.info("logger--笔记本电脑--失败")
-    logger.info("logger--笔记本电脑--成功")
-    logger.info("alert--笔记本电脑--16")
-    for i in range(10):
-        logger.info("logger--笔记本电脑--成功")
-        logger.info("alert--笔记本电脑--16")
-    # logger.info()
+    # for i in range(10):
+    #     logger.info("logger--笔记本电脑--成功")
+    #     logger.info("alert--笔记本电脑--16")
 
     return logger
 
 
+if __name__ == '__main__':
+    pass
