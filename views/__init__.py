@@ -76,17 +76,23 @@ class basefFrame:
         # 获取GUI界面上的参数
 
         #清空图像，使得前后两次绘制的图像不会重叠
-        figure = plt.gcf()
-        figure.clf()
-        self.b = self.figure.add_subplot(111)
-        # 在[0,100]范围内随机生成sampleCount个数据点
-        x = np.random.randint(0, 100, size=100)
-        y = np.random.randint(0, 100, size=100)
-        color = ['b', 'r', 'y', 'g']
-        # 绘制这些随机点的散点图，颜色随机选取
-        self.b.scatter(x, y, s=3, color=color[np.random.randint(len(color))])
-        self.b.set_title('Demo: Draw N Random Dot')
-        self.canvas.show()
+        # figure = plt.gcf()
+        # figure.clf()
+        # self.b = self.figure.add_subplot(111)
+        # # 在[0,100]范围内随机生成sampleCount个数据点
+        # x = np.random.randint(0, 100, size=100)
+        # y = np.random.randint(0, 100, size=100)
+        # color = ['b', 'r', 'y', 'g']
+        # # 绘制这些随机点的散点图，颜色随机选取
+        # self.b.scatter(x, y, s=3, color=color[np.random.randint(len(color))])
+        # self.b.set_title('Demo: Draw N Random Dot')
+        # self.canvas.show()
+        # print("123")
+        self.fig.clf()
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.paint_frame)
+        self.ax = self.fig.add_subplot(1, 1, 1)
+        lines = self.ax.plot([0, 1, 2, 3, 4, 5], [5, 4, 3, 2, 1, 0], 'r-', lw=5)
+        self.canvas.get_tk_widget().place(x=10, y=40)
         print("123")
 
 
@@ -149,22 +155,34 @@ class basefFrame:
         numberChosen.current(0)  # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
         numberChosen.place(x=150, y=11)
 
+        # fig = plt.figure()
+        # ax = fig.add_subplot(1, 1, 1)
+        # ax.scatter(x_data, y_data)
+        # plt.ion()
+        # plt.show()
 
         #在Tk的GUI上放置一个画布，
         matplotlib.use('TkAgg')
-        self.figure = Figure(figsize=(6,3.5), dpi=100)
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.paint_frame)
-        self.a = self.figure.add_subplot(111)
-        # 在[0,100]范围内随机生成sampleCount个数据点
-        x = np.random.randint(0, 100, size=50)
-        y = np.random.randint(0, 100, size=50)
-        color = ['b', 'r', 'y', 'g']
-        # 绘制这些随机点的散点图，颜色随机选取
-        self.a.scatter(x, y, s=3, color=color[np.random.randint(len(color))])
-        self.a.set_title('Demo: Draw N Random Dot')
-        # self.canvas.show()
+        self.fig = plt.figure(figsize=(6, 3.5))
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.paint_frame)
+        self.ax = self.fig.add_subplot(1, 1, 1)
+        lines = self.ax.plot([0,1,2,3,4,5], [0,1,2,3,4,5], 'r-', lw=5)
         self.canvas.get_tk_widget().place(x=10, y=40)
+
+        # self.figure = Figure(figsize=(6,3.5), dpi=100)
+        # self.canvas = FigureCanvasTkAgg(self.figure, master=self.paint_frame)
+        # self.a = self.figure.add_subplot(111)
+        # # 在[0,100]范围内随机生成sampleCount个数据点
+        # x = np.random.randint(0, 100, size=50)
+        # y = np.random.randint(0, 100, size=50)
+        # color = ['b', 'r', 'y', 'g']
+        # # 绘制这些随机点的散点图，颜色随机选取
+        # self.a.scatter(x, y, s=3, color=color[np.random.randint(len(color))])
+        # self.a.set_title('Demo: Draw N Random Dot')
+        # # self.canvas.show()
+        # self.canvas.get_tk_widget().place(x=10, y=40)
         # self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
         ttk.Button(self.paint_frame, text='画图', command=self.drawPic).place(x=250, y=10)
         label.bind('<Button-1>', lambda x: self.paint_frame.tkraise())
         label.place(x=70, y=50)
