@@ -5,13 +5,17 @@ from crawler.core.http import Request
 from utils import load_object
 class Cralwer:
     def __init__(self):
-        self.engine = Engine(self)  #
-
+        pass
     def crawl(self,**kwargs):
+        self.engine = Engine(self)  # 需要考虑，两个爬虫是否共用一个engine
         from crawler.settings import spider,pipeline
         # 把引擎看成main函数
         # 从数据库读取链接
+        if 'spider'  in kwargs:
+            spider = kwargs['spider']
         spider = load_object(spider)(**kwargs)  # 需要 start_urls
+        if 'pipeline' in kwargs:
+            pipeline = kwargs['pipeline']
         pipeline = load_object(pipeline)(**kwargs)  # 需要logger
         self.engine.open_spider(spider,pipeline,iter(spider.start_requests()))
 

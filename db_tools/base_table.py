@@ -25,17 +25,17 @@ Session = sessionmaker(bind=engine)
 class Price(Base):
     __tablename__ = 'price'
     id = Column(INT, primary_key=True, autoincrement=True)
-    href = Column(VARCHAR(100))
-    goods = Column(VARCHAR(20))
+    gid = Column(INT)
     price = Column(FLOAT(precision=12))
     common_price = Column(FLOAT(precision=12))
     expect_price = Column(FLOAT(precision=12))
-    origin_time = Column(DATETIME)
-    update_time = Column(DATETIME)
+    date_time = Column(DATETIME)
 
 class storeUrls(Base):
     __tablename__ = 'urls'
-    url = Column(VARCHAR(100), primary_key=True,)
+    id = Column(INT, primary_key=True, autoincrement=True)
+    url = Column(VARCHAR(100))
+    goods = Column(VARCHAR(500))
     origin_time = Column(DATETIME)
     setting = Column(INT)
 

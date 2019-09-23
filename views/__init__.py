@@ -34,7 +34,8 @@ class basefFrame:
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
                 for i in range(len(urls)):
-                    iurls.insert_urls(urls[i], 1)
+                    iurls.update(f'url={urls[i]}',setting=1,)
+                self.crawl_goods(urls)
                 tk.messagebox.showinfo('提示', '导入成功')
             bulk_win.destroy()
 
@@ -55,6 +56,16 @@ class basefFrame:
         if self.crawler is not  None:
             thread = Thread(target=self.crawler.run)
             thread.start()
+    def crawl_goods(self,urls):
+        if self.crawler is not None:
+            thread = Thread(target=self.crawler.set_goods_name,args=(urls,))
+            # thread.setDaemon(True)
+            thread.start()
+    def query_df(self,shops=None):
+        '''获取单个商品价格变动表格数据'''
+        items = [(i,'笔记本电脑', "2019-01-01", '150', '-10') for i in range(25)]
+        for v in items:
+            self.i_price.insert("", "end",values=v)
 
     # *****功能区*****
     def setting_(self):
@@ -109,7 +120,8 @@ class basefFrame:
             if url == "":
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
-                iurls.insert_urls(url, 1)
+                iurls.update(f'url={url}', setting=1, )
+                self.crawl_goods(urls=[url])
                 tk.messagebox.showinfo('提示', '导入成功')
         path = tk.StringVar()
         # 创建一个名为File的菜单项
@@ -207,20 +219,19 @@ class basefFrame:
         ttk.Button(self.catch_frame, text='下一页', command="", width=9).place(x=160, y=10)
         ttk.Button(self.catch_frame, text='刷新', command="", width=9).place(x=240, y=10)
         ttk.Button(self.catch_frame, text='清空数据表', command="", width=9).place(x=320, y=10)
-        ttk.Button(self.catch_frame, text='Go', command="", width=9).place(x=560, y=10)
+        ttk.Button(self.catch_frame, text='Go', command=self.query_df, width=9).place(x=560, y=10)
         tk.Entry(self.catch_frame, borderwidth=3, width=9, selectbackground='gray').place(x=450, y=10)  # 输入框的位置设定
         ttk.Label(self.catch_frame, text='跳转到', style="BW.TLabel").place(x=400, y=12)
         ttk.Label(self.catch_frame, text='页', style="BW.TLabel").place(x=530, y=12)
         # ** 价格信息表格
         width = 100
         columns = {'id': ("id", width),
-                   "date": ("记录时间", width),
+                   'goods':('商品名称',width),
+                   "date": ("记录时间", 200),
                    'price': ('价格', width),
                    'delta_price': ('价格变动', width)}
-        self.i_price = self.dfm.getDf(self.catch_frame, 'price', columns, 15, 10, 45)
+        self.i_price = self.dfm.getDf(self.catch_frame, 'price', columns, 15, 10, 45,True)
         self.dfm.setBar(self.catch_frame, self.i_price, (613, 45, 325), (20, 375, 570))
-        for i in range(25):
-            self.i_price.insert("", "end", text="top", values=(i, "2019-01-01", '150', '-10'))
         label.bind('<Button-1>', lambda x: self.catch_frame.tkraise())
         label.place(x=10, y=50)
 
