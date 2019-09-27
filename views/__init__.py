@@ -304,7 +304,7 @@ class Itf(tk.Tk):
         super().__init__()
         self.geometry('960x600+200+100')  # 设置窗口大小和相对屏幕位置
         # self.resizable(0, 0)  # 阻止Python GUI的大小调整
-        # self.protocol("WM_DELETE_WINDOW", crawlerutils.p)  # 关闭时触发时触发函数
+        self.protocol("WM_DELETE_WINDOW", self.close)  # 关闭时触发时触发函数
         self.title("价格监测")
         self.initFFrame()
 
@@ -313,6 +313,11 @@ class Itf(tk.Tk):
         self.dfm = self.frame.dfm
     def set_crawler(self,crawler):
         self.frame.crawler = crawler
+
+    def close(self):
+        plt.close(self.frame.fig)
+        self.destroy()
+
 
 if __name__ == '__main__':
     itf = Itf()

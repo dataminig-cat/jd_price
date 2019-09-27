@@ -1,4 +1,5 @@
 from importlib import import_module
+import json
 def load_object(path):
     '''根据路径导入类'''
     try:
@@ -15,3 +16,7 @@ def load_object(path):
         raise NameError("Module '%s' doesn't define any object named '%s'" % (module, name))
 
     return obj
+def load_setting():
+    with open('setting.json','r') as f:
+        setting = json.load(f)
+    return setting

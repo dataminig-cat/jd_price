@@ -9,8 +9,8 @@ test_url =['https://item.jd.com/100006581142.html',
 # 每天运行一次
 runner = Runner()
 # schedule.every(1).day.at("00:00").do(runner.run)
-schedule.every(5).seconds.do(runner.run)
+# schedule.every(5).seconds.do(runner.run)
 schedule.every(1).days.do(runner.run)
 while True:
     schedule.run_pending()
-    time.sleep(2)
+    time.sleep(5)

@@ -1,20 +1,24 @@
 from sqlalchemy import create_engine,INT,VARCHAR,Column,DATETIME,FLOAT
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
+from utils import load_setting,json
+setting = load_setting()
 # 初始化用
 def new_db(name):
-    url = 'mysql+pymysql://' + 'root:123456@localhost:3306/'
-    engine = create_engine(url)  # ,echo =True)
-    conn = engine.connect()
-    conn.execute("commit")
-    conn.execute(f"CREATE DATABASE {name}")
-    conn.close()
+
+    # url = 'mysql+pymysql://' + 'root:123456@localhost:3306/'
+    if not setting['db_status']:
+        url = setting['url']
+        engine = create_engine(url)  # ,echo =True)
+        conn = engine.connect()
+        conn.execute("commit")
+        conn.execute(f"CREATE DATABASE {name}")
+        conn.close()
 
 # 建立数据库后注释
-# new_db('jd_price')
+new_db('jd_price')
 
-url = 'mysql+pymysql://'+'root:123456@localhost:3306/'+'jd_price'
+url = setting['url'] + 'jd_price'
 engine =  create_engine(url)#,echo =True)
 Base = declarative_base(engine)
 #创建会话
@@ -39,7 +43,11 @@ class storeUrls(Base):
     origin_time = Column(DATETIME)
     setting = Column(INT)
 
-
+if not setting['db_status']:
+    Base.metadata.create_all(engine)
+    setting['db_status'] = 1
+    with open('setting.json', 'w') as f:
+        json.dump(setting, f)
 if __name__ == '__main__':
     # 建表
     Base.metadata.create_all(engine)

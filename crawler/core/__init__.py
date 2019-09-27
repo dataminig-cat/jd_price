@@ -7,7 +7,7 @@ class Cralwer:
     def __init__(self):
         pass
     def crawl(self,**kwargs):
-        self.engine = Engine(self)  # 需要考虑，两个爬虫是否共用一个engine
+        engine = Engine(self)  # 需要考虑，两个爬虫是否共用一个engine；加入self会占用很多内存
         from crawler.settings import spider,pipeline
         # 把引擎看成main函数
         # 从数据库读取链接
@@ -17,7 +17,7 @@ class Cralwer:
         if 'pipeline' in kwargs:
             pipeline = kwargs['pipeline']
         pipeline = load_object(pipeline)(**kwargs)  # 需要logger
-        self.engine.open_spider(spider,pipeline,iter(spider.start_requests()))
+        engine.open_spider(spider,pipeline,iter(spider.start_requests()))
 
 
 # Spider
