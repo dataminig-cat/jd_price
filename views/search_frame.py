@@ -1,15 +1,19 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image,ImageTk
+from io import BytesIO
+import requests
+from db_tools.url import  Curls
+import datetime
 class SearchFrame(tk.Frame):
     def __init__(self,root,bulk_load=None):
         self.bulk_load =bulk_load
         self.iFrame = root.iFrame
         super().__init__(root,height=525, width=960)
         self.initFrame()
-        self.data = []      # 数据，[{}]
+        self.data = []      # 传入的商品数据，[{}]
+        self.chooseDict = {}    # 选择导入的商品
         self.cur_page = 1
-
     def add_data(self,item):
         '''
         :param item:{}
@@ -21,30 +25,94 @@ class SearchFrame(tk.Frame):
             self.show(length % 8,item)
 
     def show(self,ind,item):
+        # 背景色
         infoV = self.infoList[ind]  # 元组，item与之想对应
         path = item[0]  # 图片的地址名
-        infoV[0].paste(Image.open(path).resize((100 , 100)))
+        if path[:4] == 'http':
+            rsp = requests.get(path)
+            img = Image.open(BytesIO(rsp.content))
+        else:
+            img = Image.open(path)
+        infoV[0].paste(img.resize((100 , 100)))
         for i in range(1,4):
             infoV[i].set(item[i])
         return
+    def deshow(self,ind):
+        infoV = self.infoList[ind]  # 元组，item与之想对应
+        infoV[0].paste(Image.new('RGB', (100,100), (255, 255, 255)))
+        for i in range(1, 4):
+            infoV[i].set('')
+    def flushLabelBg(self,ind):
+        if ind in self.chooseDict:
+            self.labelList[ind%8].configure(bg='#FFFF00')
+        else:
+            self.labelList[ind%8].configure(bg=self.bgcolor[ind%8 % 4 % 2])
+    def next_page(self):
+        if self.cur_page * 8 < len(self.data):
+            if len(self.data) <= (self.cur_page+1)*8:
+                for i in range(self.cur_page * 8,(len(self.data))):
+                    self.show(i % 8,self.data[i])
+                    self.flushLabelBg(i)
+                for i in range(len(self.data), (self.cur_page+1)*8):
+                    self.deshow(i % 8)
+                    self.flushLabelBg(i)
+            else:
+                for i in range(self.cur_page * 8,(self.cur_page+1)*8):
+                    self.show(i % 8,self.data[i])
+                    self.flushLabelBg(i)
+            self.cur_page += 1
+    def pre_page(self):
+        if self.cur_page != 1:
+            self.cur_page -= 1
+            for i in range((self.cur_page-1) * 8,min(len(self.data),self.cur_page*8)):
+                self.show(i % 8,self.data[i])
+                self.flushLabelBg(i)
 
-
-
-    def deshow(self,ind,item):
-        pass
-        # Image.new('RGB', (height,width), (0, 255, 255))
-
-
+    def dump_goods(self):
+        if self.chooseDict:
+            iurls = Curls()
+            for k,(goods,url) in self.chooseDict.items():
+                iurls.update(f'url={url}',setting=1,goods=goods,origin_time=datetime.datetime.now())
+                self.labelList[k % 8].configure(bg=self.bgcolor[k % 8 % 4 % 2])
+            self.chooseDict = {}
+            self.chooseV.set("已选择：0")
     def Bind(self, label):
         '''鼠标移进去组建内部'''
         label.bind('<Motion>', self._baColor)
         label.bind('<Leave>', self._bcColor)
+        label.bind("<Button-1>", self.__bchoose)
+        label.bind("<Button-3>", self.__bcancel)
+        label.bind("<Double-1>", self.dump_goods)  # 双击下载或打开
+
+    def __bchoose(self, event):
+        if self.data:
+            i, j = event.widget.id
+            ind =(self.cur_page-1) * 8 + j
+            if ind not in self.chooseDict:
+                if ind < len(self.data):
+                    info = self.data[ind]
+                    self.chooseDict[ind] = (info[2],info[-1])
+                    event.widget.configure(bg='#FFFF00')
+                    self.chooseV.set(f"已选择：{len(self.chooseDict)}")
+    def __bcancel(self, event):
+        i, j = event.widget.id
+        ind = (self.cur_page-1) * 8 + j
+        if ind in self.chooseDict:
+            event.widget.configure(bg=self.bgcolor[i % 2])
+            del self.chooseDict[ind]
+            self.chooseV.set(f"已选择：{len(self.chooseDict)}")
     def _baColor(self, event):
         '''alterColor改变组件背景色'''
-        event.widget.configure(bg='#DCDCDC')
+        i, j = event.widget.id
+        ind = (self.cur_page - 1) * 8 + j
+        if ind not in self.chooseDict:
+            event.widget.configure(bg='#DCDCDC')
     def _bcColor(self, event):
         '''cancerColor取消组件背景色'''
-        event.widget.configure(bg=self.bgcolor[event.widget.id % 2])
+        i, j = event.widget.id
+        ind = (self.cur_page - 1) * 8 + j
+        if ind not in self.chooseDict:
+            event.widget.configure(bg=self.bgcolor[i % 2])
     def initFrame(self):
         '''显示信息的列表'''
         self.infoList = []  #[（图片,价格，名称，店铺）]
@@ -55,22 +123,24 @@ class SearchFrame(tk.Frame):
         tk.Label(self, bg=self.bgcolor[1], width = 56, height = 7,font=('',25)).grid(cnf,row=1,column=0)
         y1 = 490
         x,xpad = 500,100
-        ttk.Button(self, text='上一页', command='').place(x=x, y=y1)  # 下载按钮
+        ttk.Button(self, text='上一页', command=self.pre_page).place(x=x, y=y1)  # 下载按钮
         x += xpad
-        ttk.Button(self, text='下一页', command='').place(x=x, y=y1)  # 下载按钮
+        ttk.Button(self, text='下一页', command=self.next_page).place(x=x, y=y1)  # 下载按钮
         x += xpad
         ttk.Button(self, text='返回', command=lambda :self.iFrame.tkraise()).place(x=x, y=y1)  # 下载按钮
         x += xpad
-        ttk.Button(self, text='确定', command="").place(x=x, y=y1)  # 下载按钮
-
-        self._imgList = []  # 避免内存被释放
+        ttk.Button(self, text='确定', command=self.dump_goods).place(x=x, y=y1)  # 下载按钮
+        self.chooseV = tk.StringVar(self,"已选择：0")
+        ttk.Label(self,textvariable=self.chooseV).place(x=10,y=y1)
+        self._imgList,self.labelList = [],[]  # 避免内存被释放
         # 展示商品的格子
         height,width = 100,100
         for i in range(2):
             for index in range(4):
                 label = tk.Label(self,bg=self.bgcolor[i % 2])   #
                 label.place(x=index*240,y=240*i,width=240,height=240)
-                label.id = i
+                label.id = i,i*4+index
+                self.labelList.append(label)
                 self.Bind(label)
                 img = Image.new('RGB', (height,width), (0, 255, 255))  # 初始化一张84*125的白色(255,255,255)图片
                 img = ImageTk.PhotoImage(img)

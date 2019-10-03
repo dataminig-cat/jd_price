@@ -17,7 +17,7 @@ class Engine:
         print('队列长度',len(self.scheduler))
         # html = etree.HTML(rsp.text)
         info = self.spider.parse(rsp)   #这里需要判断是否是需要重新爬取
-        if isinstance(info,GeneratorType):  # 为何
+        if isinstance(info,GeneratorType):  # 处理返回None的情况
             for i in info:
                 if isinstance(i,Request):
                     self.scheduler.enqueue_request(i)

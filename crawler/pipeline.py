@@ -60,3 +60,17 @@ class GoodsPipe(Pipeline):
             insert_time = datetime.datetime.now()
             # 存入数据库
             self.iurls.update(f'url={rsp["href"] }',goods=rsp['goods'],origin_time=insert_time)
+
+class SGoodsPipe(Pipeline):
+    def __init__(self,**kwargs):
+        super().__init__()
+        self.itf = kwargs.get('itf')
+
+    def itemProcess(self, rsp):
+        if rsp is not None:
+            for item in rsp:
+                data = (item['img'],item['price'],item['title'],item['store'],item['url'])
+                self.itf(data)
+            # insert_time = datetime.datetime.now()
+            # # 存入数据库
+            # self.iurls.update(f'url={rsp["href"]}', goods=rsp['goods'], origin_time=insert_time)

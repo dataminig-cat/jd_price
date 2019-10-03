@@ -35,13 +35,12 @@ def get(page, keyword):
             info['comments'] = []
             print(info)
             # self.mongo_collection.insert_one(info)
-            yield info['item_id']
+            # yield info['item_id']
+            print(info)
         # 实际爬取过程中有一些广告, 其中的一些上述字段为空
         except IndexError:
             print('item信息不全, drop!')
             continue
 
-
-get(1,'耳机')
 if __name__ == '__main__':
-    pass
+    get(1, '耳机')

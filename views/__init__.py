@@ -17,15 +17,11 @@ class Itf(tk.Tk):
         self.xx, self.yy = 0, 0
         self.initFFrame()
 
-
-
     # *****功能区*****
     def callback(self, event):
         print("当前位置：", event.x, event.y, '\t间隔：', event.x - self.xx, event.y - self.yy)
         self.xx, self.yy = event.x, event.y
 
-    def search(self):
-        self.sFrame.tkraise()
     def bulk_load(self):  #批量d导入
         def get_detail():
             iurls = Curls()
@@ -53,6 +49,12 @@ class Itf(tk.Tk):
         ttk.Button(bulk_win, text='取消', command=cancel_win, width=9).place(x=350, y=370)
 
         # d = MyDialog(self.root, title='批量输入')
+    def search(self):
+        self.sFrame.tkraise()
+        if self.crawler is not None:
+            urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
+            thread = Thread(target=self.crawler.search_goods,args=(urls,))
+            thread.start()
     def crawl(self):
         if self.crawler is not  None:
             thread = Thread(target=self.crawler.run)
@@ -108,8 +110,8 @@ class Itf(tk.Tk):
         # 搜索商品
         y0 = 10
         ttk.Label(self, text='搜索商品：', style="BW.TLabel").place(x=10, y=y0)
-        v = tk.StringVar()
-        tk.Entry(self, borderwidth=3, width=40, textvariable=v, selectbackground='gray').place(x=70,
+        self.v = tk.StringVar()
+        tk.Entry(self, borderwidth=3, width=40, textvariable=self.v, selectbackground='gray').place(x=70,
                                                                                                       y=y0)  # 输入框的位置设定
         ttk.Button(self, text='搜索', command=self.search, width=9).place(x=370, y=y0)
 

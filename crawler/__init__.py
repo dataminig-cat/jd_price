@@ -1,8 +1,9 @@
 from crawler.core import Cralwer
 from db_tools.url import Curls
 class Runner():
-    def __init__(self,logger=None):
+    def __init__(self,logger=None,itf=None):
         self.logger = logger
+        self.itf = itf
         self.cralwer = Cralwer()
     def get_urls(self):
         iurls = Curls()
@@ -17,6 +18,11 @@ class Runner():
     def set_goods_name(self,urls):
         self.cralwer.crawl(start_urls=urls,spider= 'crawler.spiders.' + 'GoodsSpider',
                            pipeline= 'crawler.pipeline.'+ 'GoodsPipe')
+
+    def search_goods(self,urls):
+        self.cralwer.crawl(start_urls=urls,spider= 'crawler.spiders.' + 'SGoodsSpider',
+                           pipeline= 'crawler.pipeline.'+ 'SGoodsPipe',itf=self.itf)
+
 if __name__ == '__main__':
     # 价格
     url = 'https://p.3.cn/prices/mgets'
