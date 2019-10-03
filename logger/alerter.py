@@ -29,8 +29,8 @@ class Alerter:
 
     def info(self,msg):
         # 发邮件
-        self.msg.set_payload(msg, 'utf-8')
-        self.server.sendmail(sender, receiver, self.msg.as_string())
+        # self.msg.set_payload(msg, 'utf-8')
+        # self.server.sendmail(sender, receiver, self.msg.as_string())
         self.toaster.show_toast("价格变动",msg,duration=5)
 
 if __name__ == '__main__':

@@ -1,16 +1,15 @@
 import requests
 from lxml import etree
 
-
-def get_index1(page, keyword):
+def get(page, keyword):
     """
     从搜索页获取相应信息并存入数据库
     :param page: 搜索页的页码
     :return: 商品的id
     """
+    print(1111111)
     print(page, keyword)
     url = 'https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (keyword, page)
-    print(url)
     index_headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,'
                   'application/signed-exchange;v=b3',
@@ -42,5 +41,7 @@ def get_index1(page, keyword):
             print('item信息不全, drop!')
             continue
 
+
+get(1,'耳机')
 if __name__ == '__main__':
-    get_index1('耳机',1)
+    pass

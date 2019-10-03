@@ -1,37 +1,36 @@
-from db_tools.base_table import Price,Session,storeUrls
+# from db_tools.price import Price,Session,storeUrls
+from sqlalchemy import create_engine,INT,VARCHAR,Column,DATETIME,FLOAT
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from utils import load_setting,json
+setting = load_setting()
+
+# 初始化用
+url = setting['url'] + 'jd_price'
+engine =  create_engine(url)#,echo =True)
+Base = declarative_base(engine)
+
+#创建会话
+Session = sessionmaker(bind=engine)
+# 定义映射类User，其继承上一步创建的Base
 import datetime
 
-class Curls:
-    def __init__(self):
-        self.session = Session()    #session的生命周期跟实例一样
+def new_db(name):
+    # url = 'mysql+pymysql://' + 'root:123456@localhost:3306/'
+    if not setting['db_status']:
+        url = setting['url']
+        engine = create_engine(url)  # ,echo =True)
+        conn = engine.connect()
+        conn.execute("commit")
+        conn.execute(f"CREATE DATABASE {name}")
+        conn.close()
 
-    def update(self,key='url = ..',**kwargs):
-        var,val = key.split('=')    #变量名，取值
-        inst = self.session.query(storeUrls).filter(storeUrls.url == val).first()
-        delta = 0 # 附带比较功能
-        if inst is None:
-            kwargs[var] = val
-            inst = storeUrls(**kwargs)
-            self.session.add(inst)
-        else:
-            # inst.__dict__.update(kwargs)    # 无效
-            for k,v in kwargs.items():
-                exec(f'inst.{k}="{v}"')
-            delta = self.update_(inst)
-        self.session.commit()
-        return delta
-    def update_(self,inst):
-        return 0
-    def query(self,**kwargs):
-        return self.session.query(storeUrls).filter_by(**kwargs).all()
-class Cprice:
-    def __init__(self):
-        self.session = Session()    #session的生命周期跟实例一样
+def new_table():
+    Base.metadata.create_all(engine)
+    setting['db_status'] = 1
+    with open('setting.json', 'w') as f:
+        json.dump(setting, f)
 
-    def insert(self,**kwargs):
-        inst = Price(**kwargs)
-        self.session.add(inst)
-        self.session.commit()
 
-    def query(self,**kwargs):
-        return self.session.query(Price).filter_by(**kwargs).all()
+# 建立数据库后注释
+new_db('jd_price')

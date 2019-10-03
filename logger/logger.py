@@ -5,7 +5,6 @@ class MysqlHandler(logging.Handler):
     def __init__(self,itf):
         self.itf = itf
         super().__init__()
-        self.nums = {}
 
     def emit(self, record):
         try:
@@ -13,11 +12,9 @@ class MysqlHandler(logging.Handler):
             date = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(record.created))
             msg = self.format(record)
             id, *msg = msg.split('--')
-            num = self.nums.get(id,0) + 1 #序号
-            self.nums[id] = num
             # 分解
             # print(id,num,msg)
-            self.itf.insert(id,tuple([num,date]+msg))
+            self.itf.insert(id,[date]+msg)
             # stream = self.stream
             # stream.write(msg)
             # stream.write(self.terminator)

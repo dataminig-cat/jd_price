@@ -5,11 +5,11 @@ import tkinter as tk
 import tkinter.messagebox
 from tkinter import ttk
 from threading import Thread
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkintertable import TableCanvas,TableModel
-class CrawlFrame(tk.Frame):
+class InfoFrame(tk.Frame):
     def __init__(self, root,crawler=None):
         self.crawler = crawler
         self.dfm = DfManager()
@@ -28,56 +28,17 @@ class CrawlFrame(tk.Frame):
         except KeyError:    # 数据库无数据
             pass
 
-    def bulk_load(self):  #批量d导入
-        def get_detail():
-            iurls = Curls()
-            urls = self.text.get(1.0, tk.END)
-            urls = urls.split('\n')[:-1]
-            if urls == ['']:
-                tk.messagebox.showinfo('提示', '不能为空')
-            else:
-                for i in range(len(urls)):
-                    iurls.update(f'url={urls[i]}',setting=1,goods='')
-                self.crawl_goods(urls)
-                tk.messagebox.showinfo('提示', '导入成功')
-            bulk_win.destroy()
 
-        def cancel_win():
-            bulk_win.destroy()
-        bulk_win = tk.Tk()
-        bulk_win.geometry('600x450+400+150')
-        self.bulk_fFrame = tk.Frame(bulk_win, width=500, height=300, bg='#DCDCDC')
-        self.bulk_fFrame.place(x = 50, y= 50)
-        ttk.Label(bulk_win, text='批量导入', style="BW.TLabel").place(x=250, y=20)
-        self.text = tk.Text(self.bulk_fFrame, height=21, width=67, selectbackground='gray')  # 输入框的位置设定
-        self.text.place(x=10, y=10)
-        ttk.Button(bulk_win, text='导入', command=get_detail, width=9).place(x=150, y=370)
-        ttk.Button(bulk_win, text='取消', command=cancel_win, width=9).place(x=350, y=370)
-
-    def crawl_goods(self,urls):
-        if self.crawler is not None:
-            thread = Thread(target=self.crawler.set_goods_name,args=(urls,))
-            # thread.setDaemon(True)
-            thread.start()
     def query_df(self,shops=None):
         '''获取单个商品价格变动表格数据'''
         items = [(i,'笔记本电脑', "2019-01-01", '150', '-10') for i in range(25)]
         for v in items:
             self.i_price.insert("", "end",values=v)
     def initFrame(self):
-        def insert_url():
-            iurls = Curls()
-            url = v.get()
-            if url == "":
-                tk.messagebox.showinfo('提示', '不能为空')
-            else:
-                iurls.update(f'url={url}', setting=1, )
-                self.crawl_goods(urls=[url])
-                tk.messagebox.showinfo('提示', '导入成功')
         # ** 功能标签
         y2 = 0
         label = ttk.Label(self, text='选择商品', style="BW.TLabel")
-        label.bind('<Button-1>', lambda x: GooodsTable(self.show_table))
+        label.bind('<Button-1>', lambda x: GoodsTable(self.show_table))
         label.place(x=10, y=y2)
         label = ttk.Label(self, text='数据信息', style="BW.TLabel")
         label.bind('<Button-1>', lambda x: self.catch_frame.tkraise())
@@ -197,7 +158,7 @@ class CrawlFrame(tk.Frame):
         label.bind('<Button-1>', lambda x: self.alert_frame.tkraise())
         label.place(x=x_border + 70, y=y2)
 
-class GooodsTable(tk.Tk):
+class GoodsTable(tk.Tk):
     def __init__(self,show=None):
         '''
         :param show:触发主界面的数据显示
@@ -228,6 +189,7 @@ class GooodsTable(tk.Tk):
                 dic[params[i]] = v
             cnfs[k] = dic
         ttk.Label(self, text='搜索', style="BW.TLabel").grid(cnfs['label'])
+
         self.keyword = tk.StringVar()   # 搜索框
         tk.Entry(self, borderwidth=3, width=40, textvariable=self.keyword, selectbackground='gray').grid(cnfs['entry'])
         ttk.Button(self, text='搜索', command="", width=9).grid(cnfs['search_button'])

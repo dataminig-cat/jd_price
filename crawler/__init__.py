@@ -1,5 +1,5 @@
 from crawler.core import Cralwer
-from db_tools import Curls
+from db_tools.url import Curls
 class Runner():
     def __init__(self,logger=None):
         self.logger = logger

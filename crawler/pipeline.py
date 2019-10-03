@@ -1,5 +1,7 @@
 from crawler.core import Pipeline
-from db_tools import Curls,Cprice,datetime,Price
+from db_tools.url import Curls
+from db_tools.price import Cprice,Price
+import datetime
 from urllib.parse import urlsplit
 from logger.alerter import Alerter
 class PricePipe(Pipeline):
@@ -18,7 +20,7 @@ class PricePipe(Pipeline):
             # 商品id
             inst = self.iurls.query(url=href)[0]
             id = inst.id
-            goods = inst.goods
+            goods = inst.goods if inst.goods is not None else ''
             insert_time = datetime.datetime.now()
             # 存入数据库
             self.iprice.insert(gid=id, price=price, date_time=insert_time)
@@ -27,6 +29,7 @@ class PricePipe(Pipeline):
             price_inst = self.iprice.session.query(Price).\
                 filter(Price.gid==id).order_by(Price.id.desc()).first()
             if price_inst is not None:
+
                 delta =price - price_inst.price
             # 提醒
             if True:  # delta != 0:
