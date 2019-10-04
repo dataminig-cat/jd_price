@@ -7,7 +7,6 @@ def get(page, keyword):
     :param page: 搜索页的页码
     :return: 商品的id
     """
-    print(1111111)
     print(page, keyword)
     url = 'https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (keyword, page)
     index_headers = {

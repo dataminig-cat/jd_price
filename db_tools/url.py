@@ -16,7 +16,7 @@ class Curls:
 
     def update(self,key='url = ..',**kwargs):
         var,val = key.split('=')    #变量名，取值
-        inst = self.session.query(storeUrls).filter(storeUrls.url == val).first()
+        inst = self.session.query(storeUrls).filter(eval(f'storeUrls.{var} == val')).first()
         delta = 0 # 附带比较功能
         if inst is None:
             kwargs[var] = val

@@ -31,7 +31,7 @@ class Itf(tk.Tk):
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
                 for i in range(len(urls)):
-                    iurls.update(f'url={urls[i]}',setting=1,goods='')
+                    iurls.update(f'url={urls[i]}',setting=1,goods='',common_price=0,expect_price=0)
                 self.crawl_goods(urls)
                 tk.messagebox.showinfo('提示', '导入成功')
             bulk_win.destroy()
@@ -51,10 +51,11 @@ class Itf(tk.Tk):
         # d = MyDialog(self.root, title='批量输入')
     def search(self):
         self.sFrame.tkraise()
-        if self.crawler is not None:
-            urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
-            thread = Thread(target=self.crawler.search_goods,args=(urls,))
-            thread.start()
+        if self.v.get() != '':
+            if self.crawler is not None:
+                urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
+                thread = Thread(target=self.crawler.search_goods,args=(urls,))
+                thread.start()
     def crawl(self):
         if self.crawler is not  None:
             thread = Thread(target=self.crawler.run)
@@ -90,7 +91,7 @@ class Itf(tk.Tk):
             if url == "":
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
-                iurls.update(f'url={url}', setting=1, )
+                iurls.update(f'url={url}', setting=1,goods='',common_price=0,expect_price=0 )
                 self.crawl_goods(urls=[url])
                 tk.messagebox.showinfo('提示', '导入成功')
 
@@ -129,7 +130,7 @@ class Itf(tk.Tk):
         self.iFrame.place(x=0, y=75, height=525, width=960)
         self.sFrame = SearchFrame(self)
         self.sFrame.place(x=0, y=75, height=525, width=960)
-        # self.iFrame.tkraise()
+        self.iFrame.tkraise()
         self.iFrame.bind("<Double-1>", self.callback)  # 调试用：输出鼠标位置
     def set_crawler(self,crawler):
         self.crawler = crawler

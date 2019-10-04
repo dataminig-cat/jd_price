@@ -4,7 +4,6 @@ from views.df_manager import DfManager
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import ttk
-from threading import Thread
 # import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -158,8 +157,8 @@ class InfoFrame(tk.Frame):
         label.bind('<Button-1>', lambda x: self.alert_frame.tkraise())
         label.place(x=x_border + 70, y=y2)
 
-class GoodsTable(tk.Tk):
-    def __init__(self,show=None):
+class GoodsTable(tk.Toplevel):
+    def     __init__(self,show=None):
         '''
         :param show:触发主界面的数据显示
         '''
@@ -193,17 +192,18 @@ class GoodsTable(tk.Tk):
         self.keyword = tk.StringVar()   # 搜索框
         tk.Entry(self, borderwidth=3, width=40, textvariable=self.keyword, selectbackground='gray').grid(cnfs['entry'])
         ttk.Button(self, text='搜索', command="", width=9).grid(cnfs['search_button'])
-        frame = tk.Frame(self)
-        frame.grid(cnfs['table'])
+        self.frame = tk.Frame(self)
+        self.frame.grid(cnfs['table'])
         model = TableModel()
-        self.table = TableCanvas(frame,model)
+        self.table = TableCanvas(self.frame,model, showkeynamesinheader=True)
         self.table.show()
         ttk.Button(self, text='下一页', command="", width=9).grid(cnfs['next_page'])
-        ttk.Button(self, text='修改', command=self.choic, width=9).grid(cnfs['modify'])
+        ttk.Button(self, text='修改', command=self.modify, width=9).grid(cnfs['modify'])
         ttk.Button(self, text='选择', command=self.choic, width=9).grid(cnfs['corfirm'])
 
     def add_data(self):
         iurls = Curls()
+        self.data = {}
         data = {}
         for i,inst in enumerate(iurls.query()):
             self.goodsId[i] = (inst.id,inst.goods)
@@ -213,6 +213,7 @@ class GoodsTable(tk.Tk):
             dic['expect_price'] = inst.expect_price
             dic['setting'] = inst.setting
             data[i] = dic
+            self.data[i] = dic.copy()
         self.table.model.importDict(data)
 
     def choic(self):
@@ -226,3 +227,10 @@ class GoodsTable(tk.Tk):
             self.destroy()
         except IndexError:
             tk.messagebox.showinfo('提示', '重新选择')
+
+    def modify(self):
+        iurls = Curls()
+        for k,vals in self.table.model.data.items():
+            if self.data[k] != vals:
+                iurls.update(f'id={self.goodsId[k][0]}',**vals)
+

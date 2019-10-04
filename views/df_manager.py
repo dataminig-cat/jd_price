@@ -48,6 +48,7 @@ class DfManager:
 
     # 表格插入
     def insert(self,id,msg):
+        '''表格插入'''
         if id in self.data:
             self.data[id].append(msg)
             ith = len(self.data[id])
@@ -67,7 +68,7 @@ class DfManager:
         for i,l in enumerate(data):
             group[l[ind]] = group.get(l[ind],[]) + [i]  # 记录各组索引
         self.groups[id] = group
-        print(group)
+        # print(group)
         return group.keys()
     def show_by(self,id,key):
         '''分组展示'''
