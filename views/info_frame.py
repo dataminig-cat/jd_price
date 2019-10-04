@@ -4,6 +4,7 @@ from views.df_manager import DfManager
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import ttk
+from threading import Thread
 # import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -33,6 +34,15 @@ class InfoFrame(tk.Frame):
         items = [(i,'笔记本电脑', "2019-01-01", '150', '-10') for i in range(25)]
         for v in items:
             self.i_price.insert("", "end",values=v)
+
+    def drawPic(self):
+        self.fig = plt.figure(figsize=(6, 3.5))
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.paint_frame)
+        self.ax = self.fig.add_subplot(1, 1, 1)
+        lines = self.ax.plot([0, 1, 2, 3, 4, 5], [5, 4, 3, 2, 1, 0], 'r-', lw=5)
+        self.canvas.get_tk_widget().place(x=10, y=40)
+
+
     def initFrame(self):
         # ** 功能标签
         y2 = 0
@@ -54,6 +64,7 @@ class InfoFrame(tk.Frame):
         self.paint_frame.place(x=7, y=y3, height=400, width=650)
         ttk.Label(self.paint_frame, text='X :', style="BW.TLabel").place(x=10, y=11)
         ttk.Label(self.paint_frame, text='Y :', style="BW.TLabel").place(x=120, y=11)
+        ttk.Button(self.paint_frame, text='画图', command= self.drawPic).place(x=250, y = 10)
         style = ttk.Style()
         number = tk.StringVar()
         style.configure("BW.TLabel", foreground="black", background="#DCDCDC")
@@ -63,7 +74,6 @@ class InfoFrame(tk.Frame):
         numberChosen.bind("<<ComboboxSelected>>", )  # 绑定事件,(下拉列表框被选中时，绑定go()函数)
         # numberChosen.current(0)  # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
         numberChosen.place(x=40, y=11)
-        #
         style = ttk.Style()
         number = tk.StringVar()
         style.configure("BW.TLabel", foreground="black", background="#DCDCDC")
@@ -85,7 +95,8 @@ class InfoFrame(tk.Frame):
         self.fig = plt.figure(figsize=(6, 3.5))
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.paint_frame)
         self.ax = self.fig.add_subplot(1, 1, 1)
-        lines = self.ax.plot([0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5], 'r-', lw=5)
+        lines = self.ax.plot(['one', 'two', 'three', 'four','five'], [0, 1, 2, 3, 4], 'r-', lw=2)
+
         self.canvas.get_tk_widget().place(x=10, y=40)
 
         # self.figure = Figure(figsize=(6,3.5), dpi=100)
@@ -157,8 +168,8 @@ class InfoFrame(tk.Frame):
         label.bind('<Button-1>', lambda x: self.alert_frame.tkraise())
         label.place(x=x_border + 70, y=y2)
 
-class GoodsTable(tk.Toplevel):
-    def     __init__(self,show=None):
+class GoodsTable(tk.Tk):
+    def __init__(self,show=None):
         '''
         :param show:触发主界面的数据显示
         '''
@@ -192,18 +203,17 @@ class GoodsTable(tk.Toplevel):
         self.keyword = tk.StringVar()   # 搜索框
         tk.Entry(self, borderwidth=3, width=40, textvariable=self.keyword, selectbackground='gray').grid(cnfs['entry'])
         ttk.Button(self, text='搜索', command="", width=9).grid(cnfs['search_button'])
-        self.frame = tk.Frame(self)
-        self.frame.grid(cnfs['table'])
+        frame = tk.Frame(self)
+        frame.grid(cnfs['table'])
         model = TableModel()
-        self.table = TableCanvas(self.frame,model, showkeynamesinheader=True)
+        self.table = TableCanvas(frame,model)
         self.table.show()
         ttk.Button(self, text='下一页', command="", width=9).grid(cnfs['next_page'])
-        ttk.Button(self, text='修改', command=self.modify, width=9).grid(cnfs['modify'])
+        ttk.Button(self, text='修改', command=self.choic, width=9).grid(cnfs['modify'])
         ttk.Button(self, text='选择', command=self.choic, width=9).grid(cnfs['corfirm'])
 
     def add_data(self):
         iurls = Curls()
-        self.data = {}
         data = {}
         for i,inst in enumerate(iurls.query()):
             self.goodsId[i] = (inst.id,inst.goods)
@@ -213,7 +223,6 @@ class GoodsTable(tk.Toplevel):
             dic['expect_price'] = inst.expect_price
             dic['setting'] = inst.setting
             data[i] = dic
-            self.data[i] = dic.copy()
         self.table.model.importDict(data)
 
     def choic(self):
@@ -227,10 +236,3 @@ class GoodsTable(tk.Toplevel):
             self.destroy()
         except IndexError:
             tk.messagebox.showinfo('提示', '重新选择')
-
-    def modify(self):
-        iurls = Curls()
-        for k,vals in self.table.model.data.items():
-            if self.data[k] != vals:
-                iurls.update(f'id={self.goodsId[k][0]}',**vals)
-

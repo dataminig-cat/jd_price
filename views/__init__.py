@@ -4,6 +4,7 @@ from tkinter.filedialog import askdirectory, askopenfilename
 from db_tools.url import Curls
 import matplotlib.pyplot as plt
 import numpy as np
+import json
 from views.search_frame import SearchFrame
 from threading import Thread
 from views.info_frame import InfoFrame
@@ -31,7 +32,7 @@ class Itf(tk.Tk):
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
                 for i in range(len(urls)):
-                    iurls.update(f'url={urls[i]}',setting=1,goods='',common_price=0,expect_price=0)
+                    iurls.update(f'url={urls[i]}',setting=1,goods='')
                 self.crawl_goods(urls)
                 tk.messagebox.showinfo('提示', '导入成功')
             bulk_win.destroy()
@@ -51,11 +52,10 @@ class Itf(tk.Tk):
         # d = MyDialog(self.root, title='批量输入')
     def search(self):
         self.sFrame.tkraise()
-        if self.v.get() != '':
-            if self.crawler is not None:
-                urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
-                thread = Thread(target=self.crawler.search_goods,args=(urls,))
-                thread.start()
+        if self.crawler is not None:
+            urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
+            thread = Thread(target=self.crawler.search_goods,args=(urls,))
+            thread.start()
     def crawl(self):
         if self.crawler is not  None:
             thread = Thread(target=self.crawler.run)
@@ -66,18 +66,48 @@ class Itf(tk.Tk):
             # thread.setDaemon(True)
             thread.start()
     def setting_(self):
+        def show():
+            mysql_name = e1.get()
+            mysql_password =  e2.get()
+            send_email_name = e3.get()
+            craw_fre = e4.get()
+            f = open('setting.json', encoding='utf-8')
+            res = f.read()
+            data = json.loads(res)
+            data['frq'] = craw_fre
+            data['url'] = 'mysql+pymysql://root:'+mysql_password+'@'+mysql_name+":3306/"
+            data['receiver'] = send_email_name
+            # fw = open('user_info.json', 'w', encoding='utf-8') #存入文件
+            # json.dump(data, fw, ensure_ascii=False, indent=4)
+            e1.delete(0, "end")
+            e2.delete(0, "end")
         setting_win = tk.Tk()
         setting_win.geometry('600x450+400+150')
         ttk.Label(setting_win, text='设置', style="BW.TLabel").place(x=300, y=30)
         ttk.Label(setting_win, text='数据库名称', style="BW.TLabel").place(x=100, y=80)
-        v = tk.StringVar()
-        tk.Entry(setting_win, borderwidth=3, width=40, textvariable=v, selectbackground='gray').place(x=170, y=80)  # 输入框的位置设定
         ttk.Label(setting_win, text='数据库密码', style="BW.TLabel").place(x=100, y=120)
-        z = tk.StringVar()
-        tk.Entry(setting_win, borderwidth=3, width=40, textvariable=z, selectbackground='gray').place(x=170,
-                                                                                                      y=120)  # 输入框的位置设定
-        ttk.Button(setting_win, text='保存', command="", width=9).place(x=150, y=370)
-        ttk.Button(setting_win, text='取消', command="", width=9).place(x=350, y=370)
+        ttk.Label(setting_win, text='接受QQ邮箱账号', style="BW.TLabel").place(x=100, y=160)
+        ttk.Label(setting_win, text='爬虫频率', style="BW.TLabel").place(x=100, y=200)
+        e1 = tk.Entry(setting_win,width=40)
+        e2 = tk.Entry(setting_win,width=40)
+        e3 = tk.Entry(setting_win, width=20)
+        e4 = tk.Entry(setting_win, width=40)
+
+        e1.grid(row=0, column=1)
+        e2.grid(row=1, column=1)
+        e3.grid(row=2, column=1)
+        e4.grid(row=3, column=1)
+
+        e1.place(x=200, y=80)
+        e2.place(x=200, y=120)
+        e3.place(x=200, y=160)
+        e4.place(x=200, y=200)
+
+        tk.Button(setting_win, text="获取信息", width=10, command=show).grid(row=3, column=0, sticky="w", padx=80, pady=370)
+        tk.Button(setting_win, text="退出", width=10, command=setting_win.quit).grid(row=3, column=1, sticky="e", padx=150, pady=370)
+
+        # ttk.Button(setting_win, text='保存', command= store, width=9).place(x=150, y=370)
+        # ttk.Button(setting_win, text='取消', command="", width=9).place(x=350, y=370)
     def initFFrame(self):
         def selectPath():
             # path_ = askdirectory()
@@ -91,7 +121,7 @@ class Itf(tk.Tk):
             if url == "":
                 tk.messagebox.showinfo('提示', '不能为空')
             else:
-                iurls.update(f'url={url}', setting=1,goods='',common_price=0,expect_price=0 )
+                iurls.update(f'url={url}', setting=1, )
                 self.crawl_goods(urls=[url])
                 tk.messagebox.showinfo('提示', '导入成功')
 
@@ -130,7 +160,7 @@ class Itf(tk.Tk):
         self.iFrame.place(x=0, y=75, height=525, width=960)
         self.sFrame = SearchFrame(self)
         self.sFrame.place(x=0, y=75, height=525, width=960)
-        self.iFrame.tkraise()
+        # self.iFrame.tkraise()
         self.iFrame.bind("<Double-1>", self.callback)  # 调试用：输出鼠标位置
     def set_crawler(self,crawler):
         self.crawler = crawler

@@ -72,7 +72,7 @@ class SearchFrame(tk.Frame):
         if self.chooseDict:
             iurls = Curls()
             for k,(goods,url) in self.chooseDict.items():
-                iurls.update(f'url={url}',common_price=0,expect_price=0,setting=1,goods=goods,origin_time=datetime.datetime.now())
+                iurls.update(f'url={url}',setting=1,goods=goods,origin_time=datetime.datetime.now())
                 self.labelList[k % 8].configure(bg=self.bgcolor[k % 8 % 4 % 2])
             self.chooseDict = {}
             self.chooseV.set("已选择：0")
