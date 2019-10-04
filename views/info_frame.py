@@ -62,27 +62,26 @@ class InfoFrame(tk.Frame):
         # ** 画图界面
         self.paint_frame = tk.Frame(self)
         self.paint_frame.place(x=7, y=y3, height=400, width=650)
-        ttk.Label(self.paint_frame, text='X :', style="BW.TLabel").place(x=10, y=11)
-        ttk.Label(self.paint_frame, text='Y :', style="BW.TLabel").place(x=120, y=11)
-        ttk.Button(self.paint_frame, text='画图', command= self.drawPic).place(x=250, y = 10)
+        ttk.Label(self.paint_frame, text='选择商品:', style="BW.TLabel").place(x=10, y=11)
+        ttk.Button(self.paint_frame, text='画图', command= self.drawPic).place(x=450, y = 10)
         style = ttk.Style()
         number = tk.StringVar()
         style.configure("BW.TLabel", foreground="black", background="#DCDCDC")
-        numberChosen = ttk.Combobox(self.paint_frame, width=6, textvariable=number, state='readonly')
-        # numberChosen["values"] = ("1", "2", "3", "4")  # 设置下拉列表的值
-        # numberChosen.current(0)  # 选择第一个
-        numberChosen.bind("<<ComboboxSelected>>", )  # 绑定事件,(下拉列表框被选中时，绑定go()函数)
-        # numberChosen.current(0)  # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
-        numberChosen.place(x=40, y=11)
-        style = ttk.Style()
-        number = tk.StringVar()
-        style.configure("BW.TLabel", foreground="black", background="#DCDCDC")
-        numberChosen = ttk.Combobox(self.paint_frame, width=6, textvariable=number, state='readonly')
+        numberChosen = ttk.Combobox(self.paint_frame, width=40, textvariable=number, state='readonly')
         numberChosen["values"] = ("1", "2", "3", "4")  # 设置下拉列表的值
         numberChosen.current(0)  # 选择第一个
-        numberChosen.bind("<<ComboboxSelected>>", "")  # 绑定事件,(下拉列表框被选中时，绑定go()函数)
-        numberChosen.current(0)  # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
-        numberChosen.place(x=150, y=11)
+        numberChosen.bind("<<ComboboxSelected>>", )  # 绑定事件,(下拉列表框被选中时，绑定go()函数)
+        # numberChosen.current(0)  # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
+        numberChosen.place(x=85, y=11)
+        # style = ttk.Style()
+        # number = tk.StringVar()
+        # style.configure("BW.TLabel", foreground="black", background="#DCDCDC")
+        # numberChosen = ttk.Combobox(self.paint_frame, width=6, textvariable=number, state='readonly')
+        # numberChosen["values"] = ("1", "2", "3", "4")  # 设置下拉列表的值
+        # numberChosen.current(0)  # 选择第一个
+        # numberChosen.bind("<<ComboboxSelected>>", "")  # 绑定事件,(下拉列表框被选中时，绑定go()函数)
+        # numberChosen.current(0)  # 设置下拉列表默认显示的值，0为 numberChosen['values'] 的下标值
+        # numberChosen.place(x=150, y=11)
 
         # fig = plt.figure()
         # ax = fig.add_subplot(1, 1, 1)
