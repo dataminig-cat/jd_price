@@ -71,6 +71,3 @@ class SGoodsPipe(Pipeline):
             for item in rsp:
                 data = (item['img'],item['price'],item['title'],item['store'],item['url'])
                 self.itf(data)
-            # insert_time = datetime.datetime.now()
-            # # 存入数据库
-            # self.iurls.update(f'url={rsp["href"]}', goods=rsp['goods'], origin_time=insert_time)

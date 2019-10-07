@@ -44,7 +44,7 @@ class SGoodsSpider(Spider):
             try:
                 info = dict()
                 info['title'] = ''.join(item.xpath('.//div[@class="p-name p-name-type-2"]//em//text()'))
-                info['img'] = 'data/c08f5b9802f56855.jpg'
+                info['img'] = 'https:'+item.xpath('.//div[@class="p-img"]/a/img/@source-data-lazy-img')[0]
                 info['url'] = 'https:' + item.xpath('.//div[@class="p-name p-name-type-2"]/a/@href')[0]
                 info['store'] = item.xpath('.//div[@class="p-shop"]/span/a/text()')[0]
                 info['store_url'] = 'https' + item.xpath('.//div[@class="p-shop"]/span/a/@href')[0]

@@ -3,7 +3,6 @@ import tkinter.messagebox
 from tkinter.filedialog import askdirectory, askopenfilename
 from db_tools.url import Curls
 import matplotlib.pyplot as plt
-import numpy as np
 import json
 from views.search_frame import SearchFrame
 from threading import Thread
@@ -12,7 +11,7 @@ class Itf(tk.Tk):
     def __init__(self):
         super().__init__()
         self.geometry('960x600+200+100')  # 设置窗口大小和相对屏幕位置
-        # self.resizable(0, 0)  # 阻止Python GUI的大小调整
+        self.resizable(0, 0)  # 阻止Python GUI的大小调整
         self.protocol("WM_DELETE_WINDOW", self.close)  # 关闭时触发时触发函数
         self.title("价格监测")
         self.xx, self.yy = 0, 0
@@ -53,6 +52,7 @@ class Itf(tk.Tk):
     def search(self):
         self.sFrame.tkraise()
         if self.crawler is not None:
+            self.sFrame.data = []
             urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
             thread = Thread(target=self.crawler.search_goods,args=(urls,))
             thread.start()
@@ -71,43 +71,43 @@ class Itf(tk.Tk):
             mysql_password =  e2.get()
             send_email_name = e3.get()
             craw_fre = e4.get()
-            f = open('setting.json', encoding='utf-8')
-            res = f.read()
-            data = json.loads(res)
-            data['frq'] = craw_fre
-            data['url'] = 'mysql+pymysql://root:'+mysql_password+'@'+mysql_name+":3306/"
-            data['receiver'] = send_email_name
-            # fw = open('user_info.json', 'w', encoding='utf-8') #存入文件
-            # json.dump(data, fw, ensure_ascii=False, indent=4)
-            e1.delete(0, "end")
-            e2.delete(0, "end")
+            if mysql_name != '' and mysql_password != '':
+                data['url'] = 'mysql+pymysql://'+mysql_name+':'+mysql_password+'@'+"localhost:3306/"
+            if craw_fre != '':
+                data['frq'] = craw_fre
+            if send_email_name != '':
+                data['receiver'] = send_email_name
+            with open('setting.json', 'w', encoding='utf-8') as fw: #存入文件
+                json.dump(data, fw, ensure_ascii=False, indent=4)
+            setting_win.destroy()
+        with open('setting.json', encoding='utf-8') as f:
+            data = json.load(f)
         setting_win = tk.Tk()
         setting_win.geometry('600x450+400+150')
         ttk.Label(setting_win, text='设置', style="BW.TLabel").place(x=300, y=30)
         ttk.Label(setting_win, text='数据库名称', style="BW.TLabel").place(x=100, y=80)
         ttk.Label(setting_win, text='数据库密码', style="BW.TLabel").place(x=100, y=120)
         ttk.Label(setting_win, text='接受QQ邮箱账号', style="BW.TLabel").place(x=100, y=160)
-        ttk.Label(setting_win, text='爬虫频率', style="BW.TLabel").place(x=100, y=200)
+        ttk.Label(setting_win, text='爬虫频率(天)', style="BW.TLabel").place(x=100, y=200)
         e1 = tk.Entry(setting_win,width=40)
         e2 = tk.Entry(setting_win,width=40)
-        e3 = tk.Entry(setting_win, width=20)
+        e3 = tk.Entry(setting_win, width=40)
         e4 = tk.Entry(setting_win, width=40)
 
-        e1.grid(row=0, column=1)
-        e2.grid(row=1, column=1)
-        e3.grid(row=2, column=1)
-        e4.grid(row=3, column=1)
-
+        _,usr,psw,_ = data['url'].split(':')
+        psw,_ = psw.split('@')
+        e1.insert(0,usr[2:])
+        e2.insert(0, psw)
+        e3.insert(0,data['receiver'])
+        e4.insert(0, data['frq'])
         e1.place(x=200, y=80)
         e2.place(x=200, y=120)
         e3.place(x=200, y=160)
         e4.place(x=200, y=200)
 
-        tk.Button(setting_win, text="获取信息", width=10, command=show).grid(row=3, column=0, sticky="w", padx=80, pady=370)
-        tk.Button(setting_win, text="退出", width=10, command=setting_win.quit).grid(row=3, column=1, sticky="e", padx=150, pady=370)
+        tk.Button(setting_win, text="保存", width=10, command=show).grid(row=3, column=0, sticky="w", padx=80, pady=370)
+        tk.Button(setting_win, text="退出", width=10, command=setting_win.destroy).grid(row=3, column=1, sticky="e", padx=150, pady=370)
 
-        # ttk.Button(setting_win, text='保存', command= store, width=9).place(x=150, y=370)
-        # ttk.Button(setting_win, text='取消', command="", width=9).place(x=350, y=370)
     def initFFrame(self):
         def selectPath():
             # path_ = askdirectory()
@@ -131,12 +131,8 @@ class Itf(tk.Tk):
         self.config(menu=menuBar)
         menu_tool = tk.Menu(menuBar, tearoff=False)  # 工具栏
         menu_tool.add_command(label='导入文件', command=selectPath)
-        menu_tool.add_command(label='搜索商品', command="")
         menu_tool.add_command(label='设置', command=self.setting_)
-        menuBar.add_cascade(label="工具", menu=menu_tool)
-        menu_tool1 = tk.Menu(menuBar, tearoff=False)  # 工具栏
-        menu_tool1.add_command(label='可视化', command=selectPath)
-        menuBar.add_cascade(label="菜单", menu=menu_tool1)
+        menuBar.add_cascade(label="菜单", menu=menu_tool)
 
         # 搜索商品
         y0 = 10
@@ -160,7 +156,7 @@ class Itf(tk.Tk):
         self.iFrame.place(x=0, y=75, height=525, width=960)
         self.sFrame = SearchFrame(self)
         self.sFrame.place(x=0, y=75, height=525, width=960)
-        # self.iFrame.tkraise()
+        self.iFrame.tkraise()
         self.iFrame.bind("<Double-1>", self.callback)  # 调试用：输出鼠标位置
     def set_crawler(self,crawler):
         self.crawler = crawler
@@ -169,9 +165,3 @@ class Itf(tk.Tk):
     def close(self):
         plt.close(self.iFrame.fig)
         self.destroy()
-
-
-
-
-if __name__ == '__main__':
-    pass
