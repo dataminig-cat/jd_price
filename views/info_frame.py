@@ -17,6 +17,7 @@ class InfoFrame(tk.Frame):
         self.dfm = DfManager()
         super().__init__(root, width=960, height=600, bg='#DCDCDC')
         self.initFrame()
+        self.drawed = set()
     def to_csv(self):
         choice = self.numberChosen.get()
         if choice == '':
@@ -45,17 +46,20 @@ class InfoFrame(tk.Frame):
         except KeyError:    # 数据库无数据
             pass
     def drawPic(self,event):
-        plt.xticks(rotation=20)
-        data = self.dfm.data['price']
-        x,y = [],[]
         goods = self.paintChosen.get()
-        for  ind in self.dfm.groups['price'][goods]:
-            x.append(data[ind][1].date())
-            y.append(data[ind][2])
-        lines = self.ax.plot(x,y, '-', lw=2,label=goods[:5])
-        plt.legend()
-        self.canvas.draw()
+        if goods not in self.drawed:
+            self.drawed.add(goods)
+            plt.xticks(rotation=20)
+            data = self.dfm.data['price']
+            x,y = [],[]
+            for  ind in self.dfm.groups['price'][goods]:
+                x.append(data[ind][1].date())
+                y.append(data[ind][2])
+            lines = self.ax.plot(x,y, '-', lw=2,label=goods[:5])
+            plt.legend()
+            self.canvas.draw()
     def drawCls(self):
+        self.drawed = set()
         self.ax.cla()
         self.canvas.draw()
 
@@ -109,15 +113,6 @@ class InfoFrame(tk.Frame):
         self.dfm.setBar(self.catch_frame, self.i_price, (613, 45, 390), (10, 432, 600))
         # 日志表格
         x_border = 670
-        self.log_frame = tk.Frame(self)
-        self.log_frame.place(x=x_border, y=y3, height=485, width=270)
-        columns = {'id': ("id", 25),
-                   "date": ("记录时间", 75),
-                   'name': ('商品名称', 100),
-                   'status': ('状态', 50)}
-        self.i_log = self.dfm.getDf(self.log_frame, 'logger', columns, 22, 0, 0, True)
-        self.dfm.setBar(self.log_frame, self.i_log, (255, 0, 470), (0, 465, 250))
-
         self.alert_frame = tk.Frame(self)
         self.alert_frame.place(x=x_border, y=y3, height=485, width=270)
         columns = {'id': ("id", 25),
@@ -126,6 +121,14 @@ class InfoFrame(tk.Frame):
                    'delta_price': ('价格变动', 75)}
         self.i_alert = self.dfm.getDf(self.alert_frame, 'alert', columns, 22, 0, 0, True)
         self.dfm.setBar(self.alert_frame, self.i_alert, (255, 0, 470), (0, 465, 250))
+        self.log_frame = tk.Frame(self)
+        self.log_frame.place(x=x_border, y=y3, height=485, width=270)
+        columns = {'id': ("id", 25),
+                   "date": ("记录时间", 75),
+                   'name': ('商品名称', 100),
+                   'status': ('状态', 50)}
+        self.i_log = self.dfm.getDf(self.log_frame, 'logger', columns, 22, 0, 0, True)
+        self.dfm.setBar(self.log_frame, self.i_log, (255, 0, 470), (0, 465, 250))
         label = ttk.Label(self, text='采集日志', style="BW.TLabel")
 
         label.bind('<Button-1>', lambda x: self.log_frame.tkraise())

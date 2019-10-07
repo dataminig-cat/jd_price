@@ -29,7 +29,6 @@ class PricePipe(Pipeline):
             price_inst = self.iprice.session.query(Price).\
                 filter(Price.gid==id).order_by(Price.id.desc()).first()
             if price_inst is not None:
-
                 delta =price - price_inst.price
             # 提醒
             if True:  # delta != 0:
