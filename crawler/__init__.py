@@ -1,5 +1,8 @@
 from crawler.core import Cralwer
-from db_tools.url import Curls
+try:
+    from db_tools.url import Curls
+except:
+    pass
 class Runner():
     def __init__(self,logger=None,itf=None):
         self.logger = logger

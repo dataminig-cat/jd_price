@@ -3,8 +3,11 @@ from tkinter import ttk
 from PIL import Image,ImageTk
 from io import BytesIO
 import requests
-from db_tools.url import  Curls
 import datetime
+try:
+    from db_tools.url import Curls
+except:
+    pass
 class SearchFrame(tk.Frame):
     def __init__(self,root,bulk_load=None):
         self.bulk_load =bulk_load

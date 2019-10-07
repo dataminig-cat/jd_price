@@ -1,12 +1,15 @@
 from views.df_manager import *
 import tkinter.messagebox
 from tkinter.filedialog import askdirectory, askopenfilename
-from db_tools.url import Curls
 import matplotlib.pyplot as plt
 import json
 from views.search_frame import SearchFrame
 from threading import Thread
 from views.info_frame import InfoFrame
+try:
+    from db_tools.url import Curls
+except:
+    pass
 class Itf(tk.Tk):
     def __init__(self):
         super().__init__()

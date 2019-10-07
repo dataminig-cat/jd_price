@@ -1,5 +1,3 @@
-from db_tools.url import Curls
-from db_tools.price import Cprice
 from views.df_manager import DfManager
 import tkinter as tk
 import tkinter.messagebox
@@ -11,6 +9,11 @@ plt.rcParams['axes.unicode_minus'] = False
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkintertable import TableCanvas,TableModel
 import time
+try:
+    from db_tools.url import Curls
+    from db_tools.price import Cprice
+except:
+    pass
 class InfoFrame(tk.Frame):
     def __init__(self, root,crawler=None):
         self.crawler = crawler
