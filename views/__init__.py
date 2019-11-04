@@ -55,7 +55,7 @@ class Itf(tk.Tk):
     def search(self):
         self.sFrame.tkraise()
         if self.crawler is not None:
-            self.sFrame.data = []
+            self.sFrame.data = []   # 清空数据表
             urls = ['https://search.jd.com/Search?keyword=%s&enc=utf-8&page=%d' % (self.v.get(), 1)]
             thread = Thread(target=self.crawler.search_goods,args=(urls,))
             thread.start()

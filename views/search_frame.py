@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image,ImageTk
 from io import BytesIO
 import requests
+import webbrowser   # 调用浏览器打开网页
 import datetime
 try:
     from db_tools.url import Curls
@@ -79,13 +80,22 @@ class SearchFrame(tk.Frame):
                 self.labelList[k % 8].configure(bg=self.bgcolor[k % 8 % 4 % 2])
             self.chooseDict = {}
             self.chooseV.set("已选择：0")
+    def open_page(self,event):
+        '''用默认浏览器打开新的网页'''
+        i, j = event.widget.id
+        ind = (self.cur_page-1) * 8 + j
+        if ind < len(self.data):
+            url = self.data[ind][-1]
+            webbrowser.open(url, new=0, autoraise=True)
+        self.__bcancel(event)
+
     def Bind(self, label):
         '''鼠标移进去组建内部'''
         label.bind('<Motion>', self._baColor)
         label.bind('<Leave>', self._bcColor)
         label.bind("<Button-1>", self.__bchoose)
         label.bind("<Button-3>", self.__bcancel)
-        label.bind("<Double-1>", self.dump_goods)  # 双击下载或打开
+        label.bind("<Double-1>", self.open_page)  # 双击下载或打开
 
     def __bchoose(self, event):
         if self.data:
@@ -94,7 +104,7 @@ class SearchFrame(tk.Frame):
             if ind not in self.chooseDict:
                 if ind < len(self.data):
                     info = self.data[ind]
-                    self.chooseDict[ind] = (info[2],info[-1])
+                    self.chooseDict[ind] = (info[2],info[-1])   # goods,url
                     event.widget.configure(bg='#FFFF00')
                     self.chooseV.set(f"已选择：{len(self.chooseDict)}")
     def __bcancel(self, event):
@@ -165,5 +175,3 @@ class SearchFrame(tk.Frame):
                 tk.Label(self,height =1, textvariable=shopsV, font=('', 8),justify = 'left',anchor='w',wraplength = 200,
                          bg=self.bgcolor[i % 2]).place(x=50 + index * 240,y=210 + 240 * i)
                 self.infoList.append((img,priceV,goodsV,shopsV))
-        '''华硕(ASUS) 灵耀Deluxe13 英特尔酷睿i7 13.3英寸轻薄笔记本电脑(i7-8565U 8G'''
-        '''华硕京东自营官方旗舰店'''

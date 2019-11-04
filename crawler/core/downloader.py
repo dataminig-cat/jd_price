@@ -4,6 +4,10 @@ from requests.exceptions import ProxyError
 import time
 # 随机代理、随机头
 def get_page(rqs):
+    '''
+    :param rqs:Request 对象
+    :return:
+    '''
     try:
         ua = UserAgent()
     except FakeUserAgentError:
@@ -18,10 +22,10 @@ def get_page(rqs):
         headers = base_headers
     # print('Getting', url)
     try:
-        r = requests.get(rqs.url, headers=headers,params=rqs.params,cookies=rqs.cookies)
+        rsp = requests.get(rqs.url, headers=headers,params=rqs.params,cookies=rqs.cookies)
         # print('Getting result', url, r.status_code)
-        if r.status_code == 200:
-            return r
+        if rsp.status_code == 200:
+            return rsp
     except Exception as e:# ConnectionError or ProxyError or ConnectionRefusedError:
         print(e)
         print('Crawling Failed', rqs.url)

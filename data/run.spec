@@ -4,9 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['run.py'],
-              pathex=['E:\\数据挖掘项目\\爬虫数据喵\\jd_price','C:\\Users\\33171\\AppData\\Local\\Programs\\Python\\Python37',
-	         'C:\\Users\\33171\\AppData\\Local\\Programs\\Python\\Python37\\DLLs',
-	         'C:\\Users\\33171\\AppData\\Local\\Programs\\Python\\Python37\\Lib\\site-packages'],
+              pathex=['E:\\数据挖掘项目\\爬虫数据喵\\jd_price','C:\\Users\\33171\\AppData\\Local\\Programs\\Python\\Python37',],
              binaries=[],
              datas=[(r'C:\Users\33171\AppData\Local\Programs\Python\Python37\Lib\site-packages\win10toast\data\python.ico','.'),
              (r'E:\\数据挖掘项目\\爬虫数据喵\\jd_price\setting.json','.')],

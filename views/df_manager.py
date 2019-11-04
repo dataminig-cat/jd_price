@@ -5,8 +5,9 @@ class DfManager:
     def __init__(self):
         self.maps = {}  #得到不同表格实例
         # 需要一个容器来管理数据，以二位列表的形式
-        self.data = {}
-        self.groups = {}
+        self.data = {}      # 所有数据
+        self.items = {}     # 存放每一项数据
+        self.groups = {}    # 存放每一个组
     # 表格界面
     def getDf(self,root,id,columns,height,x,y,headings=False):
         '''
@@ -51,32 +52,38 @@ class DfManager:
         if id in self.data:
             self.data[id].append(msg)   # msg = [goods,date_time,price,price-pre_price]
             ith = len(self.data[id])
-
         else:
             self.data[id] = [msg]
             ith = 1
         return self.maps[id].insert("","end",text = "top",values=[ith] + msg) # 次序 + 其它数据信息
-
     def update(self,id,item,msg):
         return self.maps[id].item(item, values=msg)
-
     def group_by(self,id,ind):
         '''根据索引所在的列分组'''
         data = self.data[id]
         group = {}
         for i,l in enumerate(data):
             group[l[ind]] = group.get(l[ind],[]) + [i]  # 记录各组索引
-        self.groups[id] = group
+        self.items[id] = group
         return group.keys()
     def show_by(self,id,key):
+        '''分项展示'''
+        data = self.data[id]
+        self.cur_group = []
+        for i,ind in enumerate(self.items[id][key]):
+            self.cur_group.append(data[ind])
+            self.maps[id].insert("","end",text = "top",values=[i+1]+data[ind]) # 次序 + 其它数据信息
+    def set_group(self,groups):
+        self.groups = groups
+    def show_by_group(self,id,group):
         '''分组展示'''
         self.cls(id)
         data = self.data[id]
-        self.cur_group = []
-        for i,ind in enumerate(self.groups[id][key]):
-            self.cur_group.append(data[ind])
-            self.maps[id].insert("","end",text = "top",values=[i+1]+data[ind]) # 次序 + 其它数据信息
-
+        count = 0
+        for item in self.groups[group]:
+            count += 1
+            for ind in self.items[id][item]:
+                self.maps[id].insert("", "end", text="top", values=[count] + data[ind])  # 次序 + 其它数据信息
     def cls(self,id):
         '''清空数据表'''
         df = self.maps[id]

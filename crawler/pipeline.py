@@ -31,7 +31,7 @@ class PricePipe(Pipeline):
             if price_inst is not None:
                 delta =price - price_inst.price
             # 提醒
-            if True:  # delta != 0:
+            if delta != 0:      #
                 # 无界面
                 self.alert_msg += f'{goods}\t：{delta}\n'
                 # 有界面
