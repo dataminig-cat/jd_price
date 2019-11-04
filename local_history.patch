@@ -1,0 +1,44 @@
+Index: db_tools/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- db_tools/__init__.py	(date 1568212656215)
++++ db_tools/__init__.py	(date 1568212656215)
+@@ -7,30 +7,16 @@
+ 
+     def insert_urls(self,url, status):
+         insert_time = datetime.datetime.now()
+-        inst = self.session .query(storeUrls).filter(storeUrls.url == url).first()
+-        if inst is None:
++        try:
+             p = storeUrls(url = url, origin_time = insert_time, setting = status)
+             self.session .add(p)
+             self.session .commit()
+-        else:
+-            inst.origin_time = insert_time
++        except:
++            url_update = self.session .query(storeUrls).filter(url == url).first()
++            url_update.origin_time = insert_time
+             self.session .commit()
+ 
+ 
+ class Cprice:
+     def __init__(self):
+-        self.session = Session()    #session的生命周期跟实例一样
+-
+-    def insert(self,key='url = ..',**kwargs):
+-        var,val = key.split('=')    #变量名，取值
+-        inst = self.session.query(Price).filter(Price.href == val).first()
+-        if inst is None:
+-            inst = Price(**kwargs)
+-            self.session.add(inst)
+-        else:
+-            self.update(inst,**kwargs)
+-        self.session.commit()
+-
+-    def update(self,inst,**kwargs):
+-        inst.update_time = kwargs['update_time']    #
+-        inst.price = kwargs['price']
++        pass
+\ No newline at end of file
